@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Сервер 2 дээр зөвхөн etcd1, etcd2 -ийг асаана.
+# Сүлжээний хаягийг тохируулахдаа bridge network -аар
+# дамжуулж router -руу хаягаа явуулна,ингэхдээ
+# vagrantfile -ийг дуудаж ажиллуулах үед оролтоос
+# аль сүлжээний төхөөрөмжийг ашиглахыг асуух учир
+# нарийн сүлжээний тохируулгыг хийхгүй үлдээсэн.
+#
+#
+# *.vm.network -ийг дотор нь хоёр ангилж тохируулах 
+# боломжтой үүнд: "private_network", "public_network"
+#
+# private_network нь тухайн host machine дээр үүсэж 
+# байгаа хийсвэр сүлжээний хаяг, зөвхөн host machine
+# дотор ажиллаж байгаа сервис болон instance -ууд
+# хоорондоо энэ сүлжээгээр харилцаж чадна.
+#
+# public_network нь host machine дээр тохируулагдсан
+# аль нэг сүлжээний интерфэйстэй холбогдож router
+# -ээс хаяг авах эсвэл router -ийн IPtable дээр өөрийн
+# хүсэмжит хаягийг хадгалуулна.
+#
+# bootstrap.sh дотор instance асахдаа ямар коммандуудыг
+# ажиллуулахыг бичиж өгсөн.
+
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  InstanceCount = 2
+  (1..InstanceCount).each do |i|
+
+    config.vm.define "etcd#{i+1}" do |etcdnode|
+
+      etcdnode.vm.box = "generic/ubuntu2004"
+      etcdnode.vm.box_check_update = false
+      etcdnode.vm.box_version = "3.3.0"
+      etcdnode.vm.hostname = "etcd#{i+1}.example.com"
+
+      etcnode.vm.network "public", ip: "192.168.55.22#{i+1}"
+
+      etcdnode.vm.provider :virtualbox do |v|
+        v.name = "etcd#{i+1}"
+        v.memory = 2048
+        v.cpus = 2
+      end
+
+    end
+
+  end
+
+end
+

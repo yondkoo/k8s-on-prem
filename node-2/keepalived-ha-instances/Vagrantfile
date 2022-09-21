@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Сервер тус бүр дээр keepalived-ha-instance
+# ажиллана. Ажиллагааны хувьд хэрэв сервер N1
+# унавал сервер N2 түүнийг мэдэрч хийсвэр дундын
+# сүлжээний хаягийг сервер 2 дээр байгаа master
+# node -руу заах ёстой.
+#
+# *.vm.network -ийг дотор нь хоёр ангилж тохируулах 
+# боломжтой үүнд: "private_network", "public_network"
+#
+# private_network нь тухайн host machine дээр үүсэж 
+# байгаа хийсвэр сүлжээний хаяг, зөвхөн host machine
+# дотор ажиллаж байгаа сервис болон instance -ууд
+# хоорондоо энэ сүлжээгээр харилцаж чадна.
+#
+# public_network нь host machine дээр тохируулагдсан
+# аль нэг сүлжээний интерфэйстэй холбогдож router
+# -ээс хаяг авах эсвэл router -ийн IPtable дээр өөрийн
+# хүсэмжит хаягийг хадгалуулж чадна.
+#
+# bootstrap.sh дотор instance асахдаа ямар коммандуудыг
+# ажиллуулахыг бичиж өгсөн.
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  config.vm.define "loadbalancer2" do |lb|
+    lb.vm.box                 = "generic/ubuntu2004"
+    lb.vm.box_check_update    = false
+    lb.vm.box_version         = "3.3.0"
+    lb.vm.hostname            = "loadbalancer2.example.com"
+
+    lb.vm.network "public_network", ip: "192.168.55.52"
+
+    lb.vm.provider :virtualbox do |v|
+      v.name      = "loadbalancer2"
+      v.memory    = 4096
+      v.cpus      = 2
+    end 
+
+  end
+
+end
+

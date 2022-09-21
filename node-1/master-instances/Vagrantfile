@@ -1,0 +1,44 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Сервер 1 дээр Master node 1, 2 хамт ажиллана.
+# *MasterCount* -д 2 гэсэн утгыг оруулж давталт ашигласан.
+#
+# Сүлжээний хаягууд:
+#   Master node 1: 192.168.3.211
+#   Master node 2: 192.168.3.212
+#
+# bootstrap.sh дотор instance асахдаа ямар коммандуудыг
+# ажиллуулахыг бичиж өгсөн.
+
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  MasterCount = 2
+
+  (1..MasterCount).each do |i|
+
+    config.vm.define "kmaster#{i}" do |masternode|
+
+      masternode.vm.box               = "generic/ubuntu2004"
+      masternode.vm.box_check_update  = false
+      masternode.vm.box_version       = "3.3.0"
+      masternode.vm.hostname          = "kmaster#{i}.example.com"
+
+      masternode.vm.network "public_network", ip: "192.168.55.21#{i}"
+
+      masternode.vm.provider :virtualbox do |v|
+        v.name   = "kmaster#{i}"
+        v.memory = 16384
+        v.cpus   = 4
+      end
+
+    end
+
+  end
+
+end

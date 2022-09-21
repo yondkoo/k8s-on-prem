@@ -1,0 +1,20 @@
+[Unit]
+Description=Starting starter instances script
+After=network.target vboxdrv.servicevboxautostart-service.service vboxballoonctrl-service.service vboxweb-service.service
+
+[Service]
+User=user
+Group=user
+Type=forking
+TimeoutSec=5min
+Restart=no
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+
+ExecStart=/home/ailab/scripts/starter.sh
+ExecStop=/home/ailab/scripts/stop_all_instances.sh 
+
+[Install]
+WantedBy=multi-user.target

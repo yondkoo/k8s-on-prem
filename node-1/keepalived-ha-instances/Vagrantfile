@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Сервер тус бүр дээр keepalived-ha-instance
+# ажиллана. Ажиллагааны хувьд хэрэв сервер N1
+# унавал сервер N2 түүнийг мэдэрч дундын сүлжээний
+# хаягийг сервер 2 дээр байгаа master node -руу заах ёстой.
+#
+# bootstrap.sh дотор instance асахдаа ямар коммандуудыг
+# ажиллуулахыг бичиж өгсөн.
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  config.vm.define "loadbalancer1" do |lb|
+    lb.vm.box                 = "generic/ubuntu2004"
+    lb.vm.box_check_update    = false
+    lb.vm.box_version         = "3.3.0"
+    lb.vm.hostname            = "loadbalancer1.example.com"
+
+    lb.vm.network "public_network", ip: "192.168.55.51"
+
+    lb.vm.provider :virtualbox do |v|
+      v.name      = "loadbalancer1"
+      v.memory    = 4096
+      v.cpus      = 2
+    end
+
+  end
+
+end
+

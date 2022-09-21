@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Сервер 1 дээр одоо зөвхөн worker1 -ийг асаана.
+# Хэрэв олныг асаах бол доорх *WorkerCount* -ийн
+# утгыг нэмнэ. Ингэж нэмэхдээ Сервер 2 дээр
+# тохируулсан сүлжээний хаягтай давхцаж байгаа
+# эсэхийг нягтлаж асаах хэрэгтэй.
+#
+# bootstrap.sh дотор instance асахдаа ямар коммандуудыг
+# ажиллуулахыг бичиж өгсөн.
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  # Kubernetes Worker Nodes
+  WorkerCount = 1
+
+  (1..WorkerCount).each do |i|
+
+    config.vm.define "kworker#{i}" do |workernode|
+
+      workernode.vm.box               = "generic/ubuntu2004"
+      workernode.vm.box_check_update  = false
+      workernode.vm.box_version       = "3.3.0"
+      workernode.vm.hostname          = "kworker#{i}.example.com"
+
+      workernode.vm.network "public_network", ip: "192.168.55.23#{i}"
+
+      workernode.vm.provider :virtualbox do |v|
+        v.name   = "kworker#{i}"
+        v.memory = 16384
+        v.cpus   = 4
+      end
+
+    end
+
+  end
+
+end
