@@ -14,14 +14,8 @@ function starter {
 
 function start_vms {
   for i in "${vms[@]}"; do
-    if [ ${#running_vms[@]} -eq "0" ]; then
+    if [ $(VBoxManage showvminfo "$i" | grep -c "running (since") -eq "0" ]; then
       VBoxManage startvm "$i" --type headless;
-    else
-      for j in "${running_vms[@]}"; do
-        if [ $i != $j ]; then
-          VBoxManage startvm "$i" --type headless;
-        fi  
-      done
     fi  
   done
 }
